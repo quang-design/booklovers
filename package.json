@@ -26,5 +26,8 @@
 		"typescript": "^5.0.0",
 		"vite": "^5.4.11"
 	},
-	"packageManager": "pnpm@8.14.3+sha1.872b21adeaae4e71acd5c551ba848d927d6aa446"
+	"packageManager": "pnpm@8.14.3+sha1.872b21adeaae4e71acd5c551ba848d927d6aa446",
+	"dependencies": {
+		"lucide-svelte": "^0.469.0"
+	}
 }
