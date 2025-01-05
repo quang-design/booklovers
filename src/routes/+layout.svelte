@@ -3,11 +3,12 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import { X } from 'lucide-svelte';
 	import messagesStore from '$lib/stores/messages.store';
+	import '$lib/firebase/firebase.client';
 
 	let { children } = $props();
 
 	$effect(() => {
-		messagesStore.showError();
+		// messagesStore.showError();
 		return () => {};
 	});
 
