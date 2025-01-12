@@ -7,14 +7,14 @@
 	async function handleLoginWithGoogle() {
 		try {
 			const user = await loginWithGoogle();
-			await afterLogin(page.url);
+			await afterLogin(page.url, user.uid);
 			console.log(user);
 		} catch (e) {
 			if (e.code === 'auth/popup-closed-by-user') {
 				console.log('Google login cancelled');
 				return;
 			}
-			console.log(e);
+			console.error('Login error:', e);
 			messagesStore.showError();
 		}
 	}

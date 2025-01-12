@@ -23,7 +23,7 @@
 				return;
 			}
 			const user = await registerWithEmailAndPassword(email, password);
-			afterLogin(page.url);
+			afterLogin(page.url, user.uid);
 			console.log(user);
 		} catch (error) {
 			if (error.code === 'auth/email-already-in-use') {

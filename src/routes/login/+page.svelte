@@ -3,6 +3,8 @@
 	import AuthForm from '$lib/components/Auth/AuthForm.svelte';
 	import { loginWithEmailAndPassword } from '$lib/firebase/auth.client';
 	import messagesStore from '$lib/stores/messages.store';
+	import { afterLogin } from '$lib/helpers/route.helper';
+	import { page } from '$app/state';
 
 	async function handleSubmit(e) {
 		e.preventDefault();
@@ -11,6 +13,7 @@
 			const email = formData.get('email');
 			const password = formData.get('password');
 			const user = await loginWithEmailAndPassword(email, password);
+			await afterLogin(page.url, user.uid);
 			console.log(user);
 		} catch (error) {
 			console.log(error.code);
