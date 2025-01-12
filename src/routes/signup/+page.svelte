@@ -4,14 +4,16 @@
 	import LoginWithGoogle from '$lib/components/Auth/LoginWithGoogle.svelte';
 	import { registerWithEmailAndPassword } from '$lib/firebase/auth.client';
 	import { goto } from '$app/navigation';
-
-	let email = $state('');
-	let password = $state('');
+	import { afterLogin } from '$lib/helpers/route.helper';
+	import { page } from '$app/state';
 
 	async function handleSubmit(e) {
 		e.preventDefault();
 
 		try {
+			const formData = new FormData(e.target);
+			const email = formData.get('email');
+			const password = formData.get('password');
 			if (!email || !password) {
 				messagesStore.showError('Please enter an email and password.');
 				return;
@@ -21,6 +23,7 @@
 				return;
 			}
 			const user = await registerWithEmailAndPassword(email, password);
+			afterLogin(page.url);
 			console.log(user);
 		} catch (error) {
 			if (error.code === 'auth/email-already-in-use') {
@@ -41,7 +44,7 @@
 
 <hr />
 
-<AuthForm btnName="Sign Up" {handleSubmit} bind:email bind:password />
+<AuthForm btnName="Sign Up" {handleSubmit} />
 
 <hr />
 
