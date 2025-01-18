@@ -1,10 +1,11 @@
 <script>
 	import { page } from '$app/state';
-	import authStore from '$lib/stores/auth.store';
 	import { logout } from '$lib/firebase/auth.client';
 	import { Menu, X } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import messagesStore from '$lib/stores/messages.store';
+
+	let { isLoggedIn } = $props();
 
 	let isMenuOpen = $state(false);
 
@@ -47,7 +48,7 @@
             {isMenuOpen ? 'block' : 'hidden'}"
 			id="navbar-menu"
 		>
-			{#if $authStore.isLoggedIn}
+			{#if isLoggedIn}
 				<ul class="mt-4 flex flex-col md:mt-0 md:flex-row md:gap-6">
 					<a
 						href="/"
@@ -56,9 +57,9 @@
 						onclick={toggleMenu}>Home</a
 					>
 					<a
-						href="/add-book"
+						href="/add"
 						class="py-2 hover:text-gray-600"
-						class:text-gray-900={page.url.pathname === '/add-book'}
+						class:text-gray-900={page.url.pathname === '/add'}
 						onclick={toggleMenu}>Add Book</a
 					>
 					<a

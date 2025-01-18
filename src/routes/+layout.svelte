@@ -6,6 +6,12 @@
 	import '$lib/firebase/firebase.client';
 	import { onMount } from 'svelte';
 	import { sendJWTToken } from '$lib/firebase/auth.client';
+	import authStore from '$lib/stores/auth.store';
+
+	let { data, children } = $props();
+
+	let isLoggedIn = $derived($authStore.isActive ? $authStore.isLoggedIn : data.isLoggedIn);
+
 	let timerId;
 
 	async function sendServerToken() {
@@ -37,8 +43,6 @@
 		};
 	});
 
-	let { children } = $props();
-
 	$effect(() => {
 		// messagesStore.showError();
 		return () => {};
@@ -49,7 +53,8 @@
 	}
 </script>
 
-<Nav />
+<Nav {isLoggedIn} />
+
 <main class="px-4 py-2.5">
 	<div class="mx-auto max-w-7xl">
 		{#if $messagesStore.show}
