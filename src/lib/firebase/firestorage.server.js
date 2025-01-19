@@ -38,6 +38,8 @@ async function saveFileToDisk(file) {
 	const buffer = Buffer.from(arrayBuffer);
 	const uuid = crypto.randomUUID();
 	const filePath = path.join(tmpdir(), uuid);
+
 	fs.writeFileSync(filePath, buffer, 'base64');
+
 	return filePath;
 }

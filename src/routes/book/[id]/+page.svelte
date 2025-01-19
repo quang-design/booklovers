@@ -1,7 +1,7 @@
 <script>
 	let { data } = $props();
 
-	const book = data.book;
+	let book = data.book;
 </script>
 
 <div class="mt-3 text-center">
@@ -12,6 +12,9 @@
 </div>
 <div class="mt-2 flex justify-center">
 	<img class="max-h-80" src={book.main_picture} alt={book.title} />
+</div>
+<div class="mt-2 flex justify-center">
+	<img class="max-h-80" src={book.small_picture} alt={book.title} />
 </div>
 <div class="mt-3 text-center">
 	<pre>{book.description}</pre>

@@ -48,3 +48,65 @@ export async function getBook(id) {
 		return { id: bookRef.id, ...bookRef.data() };
 	}
 }
+
+export async function editBook(id, form, userId) {
+	const bookRef = db.collection('books').doc(id);
+
+	let mainPicture = form.main_picture || null;
+	let smallPicture = form.small_picture || null;
+
+	delete form.main_picture;
+	delete form.small_picture;
+
+	await bookRef.update(form);
+
+	// Handle picture uploads if provided
+	if (mainPicture) {
+		const mainPictureUrl = await saveFileToBucket(
+			mainPicture,
+			`${userId}/${bookRef.id}/main_picture`
+		);
+
+		await bookRef.update({ main_picture: mainPictureUrl });
+	}
+
+	if (smallPicture) {
+		const smallPictureUrl = await saveFileToBucket(
+			smallPicture,
+			`${userId}/${bookRef.id}/small_picture`
+		);
+
+		await bookRef.update({ small_picture: smallPictureUrl });
+	}
+}
+
+export async function toggleBookLike(bookId, userId) {
+	const bookDoc = db.collection('books').doc(bookId);
+
+	const userDoc = db.collection('users').doc(userId);
+
+	const user = await userDoc.get();
+
+	const userData = user.data();
+
+	if (userData.bookIds && userData.bookIds.includes(bookId)) {
+		await userDoc.update({
+			bookIds: firestore.FieldValue.arrayRemove(bookId)
+		});
+
+		await bookDoc.update({
+			likes: firestore.FieldValue.increment(-1)
+		});
+	}
+	// like the book
+	else {
+		await userDoc.update({
+			bookIds: firestore.FieldValue.arrayUnion(bookId)
+		});
+
+		await bookDoc.update({
+			likes: firestore.FieldValue.increment(1)
+		});
+	}
+	return await getBook(bookId);
+}

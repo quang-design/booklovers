@@ -1,76 +1,98 @@
 import { z } from 'zod';
 
-const MAX_FILE_SIZE = 5_000_000; // 5MB in bytes
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-
-const imageValidator = z.any().superRefine((value, ctx) => {
-	// Check if image is provided
-	if (!value || value === undefined) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: 'Image is required',
-			fatal: true
-		});
-		return z.NEVER;
-	}
-
-	// Check file size
-	if (value?.size > MAX_FILE_SIZE) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: `Image size must be less than 5MB`,
-			fatal: true
-		});
-		return z.NEVER;
-	}
-
-	// Check file type
-	if (!value?.type || !ACCEPTED_IMAGE_TYPES.includes(value.type)) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: `Only ${ACCEPTED_IMAGE_TYPES.map((type) => type.split('/')[1]).join(', ')} formats are supported`,
-			fatal: true
-		});
-		return z.NEVER;
-	}
-});
-
-export default async function validate(formData) {
+export default async function validate(formData, edit = false) {
 	const schema = z.object({
 		title: z
 			.string()
-			.nonempty('Title is required...')
 			.min(4, 'Title must be at least 4 characters')
-			.max(40, 'Title must be less than 40 characters'),
+			.max(40, 'Title must be less than 40 characters')
+			.nonempty('Book title is required.'),
 		author: z
 			.string()
-			.nonempty('Author is required')
 			.min(5, 'Author must be at least 5 characters')
-			.max(200, 'Author must be less than 200 characters'),
+			.max(200, 'Author must be less than 200 characters')
+			.nonempty('Author is required'),
 		short_description: z
 			.string()
-			.nonempty('Short description is required')
 			.min(5, 'Short description must be at least 5 characters')
-			.max(200, 'Short description must be less than 200 characters'),
+			.max(200, 'Short description must be less than 200 characters')
+			.nonempty('Short description is required'),
 		description: z
 			.string()
-			.nonempty('Description is required')
 			.min(5, 'Description must be at least 5 characters')
-			.max(4500, 'Description must be less than 4500 characters'),
-		small_picture: imageValidator,
-		main_picture: imageValidator
+			.max(4500, 'Description must be less than 4500 characters')
+			.nonempty('Description is required'),
+		small_picture: z
+			.any()
+			.nullable()
+			.superRefine((value, ctx) => {
+				// if (edit) {
+				// 	return;
+				// }
+				// Check if required
+				if (!edit && !value) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Small Picture required'
+					});
+				}
+				// Check file type
+				if (value && value.type && !['image/png', 'image/jpeg'].includes(value.type)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'The file must be an image'
+					});
+				}
+				// Check file size
+				if (value && value.size && value.size >= 4_000_000) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'The file must be under 4 MB.'
+					});
+				}
+			}),
+		main_picture: z
+			.any()
+			.nullable()
+			.superRefine((value, ctx) => {
+				// if (edit) {
+				// 	return;
+				// }
+				// Check if required
+				if (!edit && !value) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Main Picture required'
+					});
+				}
+				// Check file type
+				if (value && value.type && !['image/png', 'image/jpeg'].includes(value.type)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'The file must be an image'
+					});
+				}
+				// Check file size
+				if (value && value.size && value.size >= 4_000_000) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'The file must be under 4 MB.'
+					});
+				}
+			})
 	});
+
 	const data = {
 		title: formData.get('title'),
 		author: formData.get('author'),
 		short_description: formData.get('short_description'),
 		description: formData.get('description'),
-		small_picture: formData.get('small_picture'),
-		main_picture: formData.get('main_picture')
+		main_picture: emptyFileIsNull(formData.get('main_picture')),
+		small_picture: emptyFileIsNull(formData.get('small_picture'))
 	};
 
 	try {
-		await schema.parse(data);
+		await schema.parseAsync(data);
 		return { success: true, book: data };
 	} catch (error) {
 		const errors = error.errors.reduce((agg, e) => {
@@ -85,4 +107,12 @@ export default async function validate(formData) {
 
 		return { ...errors, ...data, success: false };
 	}
+}
+
+function emptyFileIsNull(file) {
+	if (file.size === 0) {
+		return null;
+	}
+
+	return file;
 }
