@@ -1,6 +1,7 @@
 <script>
-	let { data } = $props();
+	import Like from '$lib/components/Like.svelte';
 
+	let { data } = $props();
 	let book = data.book;
 </script>
 
@@ -18,6 +19,9 @@
 </div>
 <div class="mt-3 text-center">
 	<pre>{book.description}</pre>
+</div>
+<div class="mt-3 text-center">
+	<Like {book} textAlign="center" />
 </div>
 
 <svelte:head>

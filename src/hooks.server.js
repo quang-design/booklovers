@@ -35,7 +35,7 @@ async function getFirebaseUser(token) {
 		return null;
 	}
 
-	const decodedToken = await auth.verifyIdToken(token);
+	const decodedToken = await auth.verifyIdToken(token, true);
 	const user = await auth.getUser(decodedToken.uid);
 
 	return {
