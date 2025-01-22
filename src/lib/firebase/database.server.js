@@ -2,6 +2,7 @@ import pkg from 'firebase-admin';
 const { firestore } = pkg;
 import { db } from './firebase.server';
 import { saveFileToBucket } from './firestorage.server';
+import { PAGE_SIZE } from '$env/static/private';
 
 export async function addBook(book, userId) {
 	if (!userId) {
@@ -50,6 +51,34 @@ export async function getBook(id, userId = null) {
 
 		return { id: bookRef.id, ...bookRef.data(), likedBook };
 	}
+}
+
+export async function getBooks(userId, page = 1) {
+	const user = userId ? await getUser(userId) : null;
+
+	const bookCount = await db.collection('books').count().get();
+
+	const totalBooks = bookCount.data().count;
+
+	const next = totalBooks > page * +PAGE_SIZE;
+	const previous = page > 1;
+	const books = await db
+		.collection('books')
+		.limit(+PAGE_SIZE)
+		.offset((page - 1) * +PAGE_SIZE)
+		.orderBy('created_at', 'desc')
+		.get();
+
+	const likedBooks = books.docs.map((doc) => {
+		const likedBook = user?.bookIds?.includes(doc.id) || false;
+		return { ...doc.data(), id: doc.id, likedBook };
+	});
+
+	return {
+		books: likedBooks,
+		next,
+		previous
+	};
 }
 
 export async function getUser(userId) {

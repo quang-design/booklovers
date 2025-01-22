@@ -1,11 +1,15 @@
 <script>
 	import messagesStore from '$lib/stores/messages.store';
+	import authStore from '$lib/stores/auth.store';
 	import { Heart } from 'lucide-svelte';
 
 	let { book, textAlign = 'left' } = $props();
 	let submitting = $state(false);
 
 	async function toggleLike() {
+		if (!$authStore.isLoggedIn) {
+			return;
+		}
 		try {
 			submitting = true;
 			const response = await fetch(`/like/${book.id}`);
@@ -23,10 +27,20 @@
 		<img src="/loading.gif" alt="" />
 	{:else if book.likedBook}
 		<span class="text-xl">{book.likes}</span>
-		<Heart class="h-8 w-8 cursor-pointer fill-red-500 text-red-500" onclick={toggleLike} />
+		<Heart
+			class="h-8 w-8 
+			{$authStore.isLoggedIn ? 'cursor-pointer' : 'cursor-not-allowed'}
+				 fill-red-500 text-red-500"
+			onclick={toggleLike}
+		/>
 	{:else}
 		<span class="text-xl">{book.likes}</span>
-		<Heart class="h-8 w-8 cursor-pointer text-red-500" onclick={toggleLike} />
+		<Heart
+			class="h-8 w-8 
+			{$authStore.isLoggedIn ? 'cursor-pointer' : 'cursor-not-allowed'}
+			{book.likedBook ? 'fill-red-500' : 'text-red-500'}"
+			onclick={toggleLike}
+		/>
 	{/if}
 </div>
 
