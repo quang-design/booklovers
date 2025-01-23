@@ -22,21 +22,21 @@
 	}
 </script>
 
-<div class="flex select-none items-center justify-center text-{textAlign} gap-1">
+<div class="flex select-none text-{textAlign} gap-1">
 	{#if submitting}
 		<img src="/loading.gif" alt="" />
 	{:else if book.likedBook}
-		<span class="text-xl">{book.likes}</span>
+		<span class="text-md">{book.likes}</span>
 		<Heart
-			class="h-8 w-8 
+			class="h-6 w-6 
 			{$authStore.isLoggedIn ? 'cursor-pointer' : 'cursor-not-allowed'}
 				 fill-red-500 text-red-500"
 			onclick={toggleLike}
 		/>
 	{:else}
-		<span class="text-xl">{book.likes}</span>
+		<span class="text-md">{book.likes}</span>
 		<Heart
-			class="h-8 w-8 
+			class="h-6 w-6 
 			{$authStore.isLoggedIn ? 'cursor-pointer' : 'cursor-not-allowed'}
 			{book.likedBook ? 'fill-red-500' : 'text-red-500'}"
 			onclick={toggleLike}
