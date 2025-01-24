@@ -3,17 +3,24 @@
 	import authStore from '$lib/stores/auth.store';
 	import { Heart } from 'lucide-svelte';
 
-	let { book, textAlign = 'left' } = $props();
+	let { book, textAlign = 'left', filterUnlikedBooks = undefined } = $props();
 	let submitting = $state(false);
 
-	async function toggleLike() {
+	async function toggleLike(e) {
+		e.stopPropagation();
 		if (!$authStore.isLoggedIn) {
 			return;
 		}
 		try {
 			submitting = true;
 			const response = await fetch(`/like/${book.id}`);
-			book = await response.json();
+			const updatedBook = await response.json();
+			book = updatedBook;
+
+			// If the book was unliked and we have a filter function, call it
+			if (!updatedBook.likedBook && filterUnlikedBooks) {
+				filterUnlikedBooks(book.id);
+			}
 		} catch (error) {
 			console.log(error);
 			messagesStore.showError(error.message);

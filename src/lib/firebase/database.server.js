@@ -57,6 +57,25 @@ export async function getBooksForUser(userId) {
 	});
 }
 
+export async function getLikedBooks(userId) {
+	const user = await getUser(userId);
+
+	const bookIds = user?.bookIds || [];
+
+	if (bookIds.length === 0) {
+		return [];
+	}
+
+	const books = await db
+		.collection('books')
+		.where(firestore.FieldPath.documentId(), 'in', bookIds)
+		.get();
+
+	return books.docs.map((doc) => {
+		return { id: doc.id, ...doc.data(), likedBook: true };
+	});
+}
+
 export async function getBook(id, userId = null) {
 	const bookRef = await db.collection('books').doc(id).get();
 

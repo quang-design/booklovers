@@ -4,8 +4,7 @@ import { redirect } from '@sveltejs/kit';
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
 	const protectRoutes = ['/add', '/edit', '/profile'];
-
-	const guessRoutes = ['/login', '/signup', 'forgot-password'];
+	const guestRoutes = ['/login', '/signup', 'forgot-password'];
 
 	try {
 		event.locals.user = await getFirebaseUser(event.cookies.get('jwt'));
@@ -20,7 +19,7 @@ export async function handle({ event, resolve }) {
 		if (!user && protectRoutes.find((u) => url.pathname.indexOf(u) > -1)) {
 			throw redirect(302, `/login?redirect=${url.pathname}`);
 		}
-		if (user && guessRoutes.find((u) => url.pathname.indexOf(u) > -1)) {
+		if (user && guestRoutes.find((u) => url.pathname.indexOf(u) > -1)) {
 			throw redirect(302, '/');
 		}
 	}

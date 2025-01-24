@@ -2,17 +2,11 @@
 	import Like from '$lib/components/Like.svelte';
 	import { goto } from '$app/navigation';
 
-	let { book } = $props();
+	let { book, filterUnlikedBooks } = $props();
 </script>
 
 <button
 	onclick={async () => await goto(`/book/${book.id}`)}
-	onkeydown={async (e) => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			await goto(`/book/${book.id}`);
-		}
-	}}
 	type="button"
 	class="mt-2 w-full justify-center gap-2 border border-gray-300 p-2 text-left md:flex"
 >
@@ -27,6 +21,6 @@
 		<h2 class="m-1 break-all text-2xl font-bold">Title: {book.title}</h2>
 		<h2 class="m-1 break-all text-xl font-bold">Author: {book.author}</h2>
 		<p class="m-1 break-all">{book.description}</p>
-		<Like {book} textAlign="left" />
+		<Like {book} textAlign="left" {filterUnlikedBooks} />
 	</div>
 </button>
